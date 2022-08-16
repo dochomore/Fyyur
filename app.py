@@ -49,6 +49,12 @@ class Venue(db.Model):
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
+class Show(db.Model):
+  __tablename__ = 'shows'
+
+  id = db.Column(db.Integer, primary_key=True)
+  start_time = db.Column(db.DateTime)
+
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
