@@ -53,7 +53,7 @@ class Show(db.Model):
   __tablename__ = 'shows'
 
   id = db.Column(db.Integer, primary_key=True)
-  start_time = db.Column(db.DateTime, nullable=True)
+  start_time = db.Column(db.DateTime, nullable=False)
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
