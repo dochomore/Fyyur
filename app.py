@@ -44,6 +44,9 @@ class Venue(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
 
+    def __repr__(self):
+       return f'{self.name} - {self.city}, {self.state}';
+
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 class Artist(db.Model):
@@ -57,6 +60,9 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+
+    def __repr__(self) -> str:
+       return f'{self.name} {self.city, self.state}'
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -92,6 +98,9 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
+  # retrive all venues data and return with jsonify 
+  # http://sqlalchemy.org/docs/orm/tutorial.html#counting
+  vale = Venue.query.all();
   data=[{
     "city": "San Francisco",
     "state": "CA",
@@ -113,6 +122,7 @@ def venues():
       "num_upcoming_shows": 0,
     }]
   }]
+  print(vale)
   return render_template('pages/venues.html', areas=data);
 
 @app.route('/venues/search', methods=['POST'])
