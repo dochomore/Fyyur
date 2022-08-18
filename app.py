@@ -33,6 +33,7 @@ migrate = Migrate(app, db=db)
 # TODO: connect to a local postgresql database
 app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config.SQLALCHEMY_TRACK_MODIFICATIONS
+app.config['SECRET_KEY'] = config.SECRET_KEY
 
 #----------------------------------------------------------------------------#
 # Models.
@@ -513,7 +514,7 @@ def shows():
         Artist.image_link.label('artist_image_link'),
         Show.start_time).join(
         Artist, Artist.id == Show.artist_id).join(Venue, Venue.id == Show.venue_id).all()
-   
+
     data = []
     for show in shows:
         dict_show = dict(show)
@@ -570,14 +571,26 @@ def create_shows():
 
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
-    # called to create new shows in the db, upon submitting new show listing form
-    # TODO: insert form data as a new Show record in the db, instead
+    try:
+        # called to create new shows in the db, upon submitting new show listing form
+        # TODO: insert form data as a new Show record in the db, instead
 
-    # on successful db insert, flash success
-    flash('Show was successfully listed!')
-    # TODO: on unsuccessful db insert, flash an error instead.
-    # e.g., flash('An error occurred. Show could not be listed.')
-    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+        # on successful db insert, flash success
+        form = ShowForm()
+        if form.validate_on_submit():
+            db.session.add(Show(
+            start_time=form.start_time.data,
+            venue_id=form.venue_id.data, 
+            artist_id=form.artist_id.data))
+            db.session.commit()
+            flash('Show was successfully listed!')
+    except Exception:
+        # TODO: on unsuccessful db insert, flash an error instead.
+        flash(f'An error occurred. Show could not be listed.')
+        db.session.rollback();
+        # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    finally:
+        db.session.close();
     return render_template('pages/home.html')
 
 
