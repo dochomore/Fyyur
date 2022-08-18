@@ -84,6 +84,9 @@ class Artist(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     show = db.relationship('Show', backref='artist', lazy=True)
+    website_link = db.Column(db.String(120), default='')
+    seeking_venue = db.Column(db.Boolean(), default=False)
+    seeking_description = db.Column(db.String(), default='')
 
     def __repr__(self) -> str:
         return f'{self.name} {self.city, self.state}'
