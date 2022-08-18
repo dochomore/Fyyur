@@ -494,13 +494,12 @@ def create_artist_submission():
     try:
         # called upon submitting the new artist listing form
         form = ArtistForm()
-        print('valida',form.validate_on_submit())
-        print(form.errors)
         if form.errors.get('phone'):
             flash('validation error, invalid phone format')
+       
         elif form.errors.get('facebook_link'):
             flash(f'validation error, facebook address is out of specified list.')
-    
+       
         elif form.errors:
             flash(f'validation error')
         
@@ -509,7 +508,7 @@ def create_artist_submission():
                             genres=form.genres.data, image_link=form.image_link.data, facebook_link=form.facebook_link.data)
             data = db.session.add(artist)
             db.session.commit()
-            print(artist)# TODO: insert form data as a new Venue record in the db, instead
+            # TODO: insert form data as a new Venue record in the db, instead
             # TODO: modify data to be the data object returned from db insertion
 
             # on successful db insert, flash success
