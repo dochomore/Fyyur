@@ -3,6 +3,8 @@ from flask_wtf import Form, FlaskForm
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
 from wtforms.validators import DataRequired, AnyOf, URL
 
+from validators import PhoneValidator
+
 
 class ShowForm(FlaskForm):
     artist_id = StringField(
@@ -193,8 +195,8 @@ class ArtistForm(FlaskForm):
         ]
     )
     phone = StringField(
-        # TODO implement validation logic for state
-        'phone'
+        'phone',
+        validators=[PhoneValidator()]
     )
     image_link = StringField(
         'image_link'

@@ -492,6 +492,8 @@ def create_artist_submission():
         # called upon submitting the new artist listing form
         form = ArtistForm()
         print('valida',form.validate_on_submit())
+        if form.errors:
+            flash('validation error, all fields are required')
         if form.validate_on_submit():
             artist = Artist(name=form.name.data, city=form.city.data, state=form.state.data, phone=form.phone.data,
                             genres=form.genres.data, image_link=form.image_link.data, facebook_link=form.facebook_link.data)
@@ -507,6 +509,8 @@ def create_artist_submission():
         db.session.rollback()
         # TODO: on unsuccessful db insert, flash an error instead.
         flash('An error occurred. Artist ' + data.name + ' could not be listed.')
+    finally:
+        db.session.close();
     return render_template('pages/home.html')
 
 
