@@ -1,9 +1,10 @@
 from datetime import datetime
+from random import choices
 from flask_wtf import Form, FlaskForm
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
 from wtforms.validators import DataRequired, AnyOf, URL
 
-from validators import PhoneValidator
+from validators import FacebookEnum, PhoneValidator
 
 
 class ShowForm(FlaskForm):
@@ -226,8 +227,8 @@ class ArtistForm(FlaskForm):
         ]
     )
     facebook_link = StringField(
-        # TODO implement enum restriction
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[URL(), FacebookEnum()],
+
     )
 
     website_link = StringField(
