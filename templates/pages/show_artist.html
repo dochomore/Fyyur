@@ -10,9 +10,11 @@
 			ID: {{ artist.id }}
 		</p>
 		<div class="genres">
+		{% if artist.genres%}
 			{% for genre in artist.genres %}
 			<span class="genre">{{ genre }}</span>
 			{% endfor %}
+		{% endif %}
 		</div>
 		<p>
 			<i class="fas fa-globe-americas"></i> {{ artist.city }}, {{ artist.state }}
