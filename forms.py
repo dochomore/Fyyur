@@ -88,7 +88,7 @@ class VenueForm(FlaskForm):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone'
+        'phone',validators=[PhoneValidator()]
     )
     image_link = StringField(
         'image_link'
