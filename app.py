@@ -378,17 +378,17 @@ def edit_artist(artist_id):
         form = ArtistForm()
         artist = db.session.query(Artist).get(artist_id)
         if artist:
-            form.name.data = artist['name']
-            form.phone.data = artist['phone']
-            form.genres.data = artist['genres']
-            form.city.data = artist['city']
-            form.state.data = artist['state']
-            form.phone.data = artist['phone']
-            form.website_link.data = artist['website']
-            form.facebook_link.data = artist['facebook_link']
-            form.seeking_venue.data = artist['seeking_venue']
-            form.seeking_description.data = artist['seeking_description']
-            form.image_link.data = artist['image_link']
+            form.name.data = artist.name
+            form.phone.data = artist.phone
+            form.genres.data = artist.genres
+            form.city.data = artist.city
+            form.state.data = artist.state
+            form.phone.data = artist.phone
+            form.website_link.data = artist.website_link
+            form.facebook_link.data = artist.facebook_link
+            form.seeking_venue.data = artist.seeking_venue
+            form.seeking_description.data = artist.seeking_description
+            form.image_link.data = artist.image_link
         else:
             raise Exception()
     except:
