@@ -2,6 +2,7 @@
 # Imports
 #----------------------------------------------------------------------------#
 
+from distutils import errors
 import enum
 import json
 from datetime import datetime
@@ -231,11 +232,9 @@ def create_venue_submission():
         form = VenueForm()
         if form.errors.get('phone'):
             flash('validation error, invalid phone format')
-
         elif form.errors:
             flash(f'validation error')
         print(form.errors)
-        print('venue data valid', form.validate_on_submit())
         if form.validate_on_submit():
             venue = Venue(name=form.name.data,
                           city=form.city.data,
@@ -387,6 +386,7 @@ def edit_artist(artist_id):
             form.seeking_venue.data = artist.seeking_venue
             form.seeking_description.data = artist.seeking_description
             form.image_link.data = artist.image_link
+            print('🥈🥈🥈', form)
         else:
             raise Exception()
     except:
@@ -401,6 +401,31 @@ def edit_artist(artist_id):
 def edit_artist_submission(artist_id):
     # TODO: take values from the form submitted, and update existing
     # artist record with ID <artist_id> using the new attributes
+    try:
+        form = ArtistForm()
+        print(form.errors)
+        print('🟢🟢', form.validate_on_submit())
+        if form.validate_on_submit():
+            artist = Artist.query.get(artist_id)
+            artist.name = form.name.data
+            artist.city = form.city.data
+            artist.state = form.state.data
+            artist.phone = form.phone.data
+            artist.genres = form.genres.data
+            artist.image_link = form.image_link.data
+            artist.facebook_link = form.facebook_link.data
+            artist.website_link = form.website_link.data
+            artist.seeking_venue = form.seeking_venue.data
+            artist.seeking_description = form.seeking_description.data
+            db.session.commit()
+            flash('updated successfully')
+        else:
+            flash('something went wrong!')
+    except:
+        flash('something went wrong!')
+        db.session.rollback()
+    finally:
+        db.session.close()
 
     return redirect(url_for('show_artist', artist_id=artist_id))
 
@@ -479,11 +504,22 @@ def create_artist_submission():
             flash(f'validation error, facebook address is out of specified list.')
 
         elif form.errors:
-            flash(f'validation error')
-
+            flash(f'validation error {form.errors}')
+        print('🟢🟢', form.errors)
+        print('🟢🟢', form.validate_on_submit())
+        data = ''
         if form.validate_on_submit():
-            artist = Artist(name=form.name.data, city=form.city.data, state=form.state.data, phone=form.phone.data,
-                            genres=form.genres.data, image_link=form.image_link.data, facebook_link=form.facebook_link.data)
+            artist = Artist(name=form.name.data,
+                            city=form.city.data,
+                            state=form.state.data,
+                            phone=form.phone.data,
+                            genres=form.genres.data,
+                            image_link=form.image_link.data,
+                            facebook_link=form.facebook_link.data,
+                            website_link=form.website_link.data,
+                            seeking_venue=form.seeking_venue.data,
+                            seeking_description=form.seeking_description.data
+                            )
             data = db.session.add(artist)
             db.session.commit()
 
@@ -493,9 +529,9 @@ def create_artist_submission():
         else:
             flash('validation error')
     except:
-        db.session.rollback()
         flash('An error occurred. Artist ' +
               data.name + ' could not be listed.')
+        db.session.rollback()
     finally:
         db.session.close()
     return render_template('pages/home.html')
