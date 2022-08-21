@@ -51,12 +51,12 @@ class Venue(db.Model):
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    website_link = db.Column(db.String(120), default='')
+    image_link = db.Column(db.String(1024))
+    facebook_link = db.Column(db.String(1024))
+    website_link = db.Column(db.String(1024), default='')
     seeking_talent = db.Column(db.Boolean(), default=False)
     seeking_description = db.Column(db.String(), default='')
-    show = db.relationship('Show', backref='venue', lazy=True)
+    show = db.relationship('Show', backref='venue', lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'{self.name} - {self.city}, {self.state}'
@@ -84,12 +84,13 @@ class Artist(db.Model):
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     genres = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    show = db.relationship('Show', backref='artist', lazy=True)
-    website_link = db.Column(db.String(120), default='')
+    image_link = db.Column(db.String(1024))
+    facebook_link = db.Column(db.String(1024))
+    show = db.relationship('Show', backref='artist', lazy=True, cascade="all, delete-orphan")
+    website_link = db.Column(db.String(1024), default='')
     seeking_venue = db.Column(db.Boolean(), default=False)
     seeking_description = db.Column(db.String(), default='')
+    
 
     def __repr__(self) -> str:
         return f'{self.name} {self.city, self.state}'
@@ -267,7 +268,7 @@ def delete_venue(venue_id):
     try:
         print(venue_id)
         venue = Venue.query.get(venue_id)
-        print(venue)
+        print(venue.id)
         if venue:
             db.session.delete(venue)
             db.session.commit()
@@ -275,7 +276,7 @@ def delete_venue(venue_id):
         else:
             raise Exception()
     except:
-        flash('something went wrong.')
+        flash('something went wrong. venue might be referenced in Show')
         db.session.rollback()
     finally:
         db.session.close()
@@ -399,8 +400,6 @@ def edit_artist(artist_id):
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
-    # TODO: take values from the form submitted, and update existing
-    # artist record with ID <artist_id> using the new attributes
     try:
         form = ArtistForm()
         print(form.errors)
@@ -494,9 +493,13 @@ def create_artist_form():
 
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
+    form = ArtistForm(request.form)
+    print(f' 🏅', form.validate_on_submit())
+    if form.validate_on_submit() == False:
+            raise Exception(form.errors);
     try:
-        # called upon submitting the new artist listing form
-        form = ArtistForm()
+       # called upon submitting the new artist listing form
+
         if form.errors.get('phone'):
             flash('validation error, invalid phone format')
 
@@ -523,14 +526,14 @@ def create_artist_submission():
             data = db.session.add(artist)
             db.session.commit()
 
-            # on successful db insert, flash success
+                # on successful db insert, flash success
             flash('Artist ' + request.form['name'] +
-                  ' was successfully listed!')
+                    ' was successfully listed!')
         else:
             flash('validation error')
     except:
         flash('An error occurred. Artist ' +
-              data.name + ' could not be listed.')
+              form.name.data + ' could not be listed.')
         db.session.rollback()
     finally:
         db.session.close()
