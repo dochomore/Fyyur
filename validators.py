@@ -21,3 +21,16 @@ class FacebookEnum(object):
     def __call__(self, form, field):
         if field.data not in self.address:
           raise ValidationError(f"Out of specified facebook ulrs: {field.data}, {self.address} ")
+
+class ChoiceEnum(object):
+    choices = [('Alternative', 'Alternative'),
+            ('Blues', 'Blues'),
+            ('Classical', 'Classical'),]
+    def __init__(self, message=None):
+        if not message:
+            message = u'out of specified list'
+        self.message = message
+
+    def __call__(self, form, field):
+        if field.data not in self.choices:
+          raise ValidationError(f"Out of specified list: {field.data}, {self.choices} ")

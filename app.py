@@ -56,7 +56,8 @@ class Venue(db.Model):
     website_link = db.Column(db.String(1024), default='')
     seeking_talent = db.Column(db.Boolean(), default=False)
     seeking_description = db.Column(db.String(), default='')
-    show = db.relationship('Show', backref='venue', lazy=True, cascade="all, delete-orphan")
+    show = db.relationship('Show', backref='venue',
+                           lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'{self.name} - {self.city}, {self.state}'
@@ -86,11 +87,11 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(1024))
     facebook_link = db.Column(db.String(1024))
-    show = db.relationship('Show', backref='artist', lazy=True, cascade="all, delete-orphan")
+    show = db.relationship('Show', backref='artist',
+                           lazy=True, cascade="all, delete-orphan")
     website_link = db.Column(db.String(1024), default='')
     seeking_venue = db.Column(db.Boolean(), default=False)
     seeking_description = db.Column(db.String(), default='')
-    
 
     def __repr__(self) -> str:
         return f'{self.name} {self.city, self.state}'
@@ -163,6 +164,45 @@ def search_venues():
                         'num_upcoming_show': upcoming_shows})
         response['data'] = data
     return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+
+
+@app.route('/shows/search', methods=['POST'])
+def search_shows():
+    response = {}
+    keyword = request.form.get('search_term')
+    if keyword:
+        search = "%{}%".format(keyword)
+        artists = Artist.query.filter(Artist.name.ilike(search)).all()
+        response['count'] = len(artists)
+        data = []
+        for artist in artists:
+            shows = db.session.query(Show.start_time.label('start_time')).filter(
+                Show.artist_id == artist.id).all()
+            data.append({'id': artist.id, 'name': artist.name, 'shows': shows})
+        response['data'] = data
+        print(response)
+    return render_template('pages/search_shows.html', results=response, search_term=request.form.get('search_term', ''))
+
+
+@app.route('/shows/<int:show_id>')
+def show_detail(show_id):
+    result = db.session.query(Artist.name.label('artist_name'), Artist.image_link.label('artist_image_link'), Artist.city.label('city'), Venue.name.label('venue_name'), Show.start_time.label('start_time')).join(Show, Show.id == Artist.id).join(Venue, Show.venue_id == Venue.id).all()
+    shows = []
+    for show in result:
+        dict_show = dict(show)
+
+        dict_show["start_time"] = dict_show['start_time'].strftime(
+                "%Y-%m-%dT%H:%M:%S%Z")
+        print(type(dict_show))
+        shows.append(dict_show)
+    print(shows)
+    # show = {
+    #     'name': 'Yimesgen',
+    #     'start_time': '19-01-2004',
+    #     'venue_name': 'venue name',
+    #     'image_link': 'https://static.remove.bg/remove-bg-web/f9c9a2813e0321c04d66062f8cca92aedbefced7/assets/start_remove-c851bdf8d3127a24e2d137a55b1b427378cd17385b01aec6e59d5d4b5f39d2ec.png'
+    # }
+    return render_template('pages/show.html', shows=shows)
 
 
 @app.route('/venues/<int:venue_id>')
@@ -496,7 +536,7 @@ def create_artist_submission():
     form = ArtistForm(request.form)
     print(f' 🏅', form.validate_on_submit())
     if form.validate_on_submit() == False:
-            raise Exception(form.errors);
+        raise Exception(form.errors)
     try:
        # called upon submitting the new artist listing form
 
@@ -526,9 +566,9 @@ def create_artist_submission():
             data = db.session.add(artist)
             db.session.commit()
 
-                # on successful db insert, flash success
+            # on successful db insert, flash success
             flash('Artist ' + request.form['name'] +
-                    ' was successfully listed!')
+                  ' was successfully listed!')
         else:
             flash('validation error')
     except:

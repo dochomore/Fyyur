@@ -1,16 +1,23 @@
-{% extends 'layouts/main.html' %}
-{% block title %}Show Search{% endblock %}
-{% block content %}
+{% extends 'layouts/main.html' %} {% block title %}Show Search{% endblock %} {%
+block content %}
 
-    <div class="page-header">
-        <h1>Fyyur Search!</h1>
+<div class="page-header">
+  <h1>Fyyur Search!</h1>
+</div>
+<p class="lead">Search results...</p>
+
+<div class="row shows">
+    {%for show in shows %}
+    <div class="col-sm-4">
+        <div class="tile tile-show">
+            <img src="{{ show.artist_image_link }}" alt="Artist Image" />
+            <h4>{{ show.start_time|datetime('full') }}</h4>
+            <h5>{{ show.artist_name }}</h5>
+            <p>playing at</p>
+            <h5>{{ show.venue_name }}</h5>
+        </div>
     </div>
-    <p class="lead"> Show Search </p>
-
-    <ul class="nav nav-pills">
-        <li class="active"><a>Shows</a></li>
-    </ul>
-
-{#    Todo implement show search frontend #}
+    {% endfor %}
+</div>
 
 {% endblock %}

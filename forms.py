@@ -4,7 +4,7 @@ from flask_wtf import Form, FlaskForm
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
 from wtforms.validators import DataRequired, AnyOf, URL
 
-from validators import FacebookEnum, PhoneValidator
+from validators import ChoiceEnum, FacebookEnum, PhoneValidator
 
 
 class ShowForm(FlaskForm):
@@ -94,8 +94,7 @@ class VenueForm(FlaskForm):
         'image_link'
     )
     genres = SelectMultipleField(
-        # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
+        'genres', validators=[DataRequired(), ChoiceEnum()],
         choices=[
             ('Alternative', 'Alternative'),
             ('Blues', 'Blues'),
