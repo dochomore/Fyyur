@@ -172,21 +172,23 @@ def search_shows():
     keyword = request.form.get('search_term')
     if keyword:
         search = "%{}%".format(keyword)
-        artists = Artist.query.filter(Artist.name.ilike(search)).all()
-        response['count'] = len(artists)
+        shows = db.session.query(Artist.id.label('id'), Artist.name.label('artist_name'), Venue.name.label('venue_name'), Show.start_time.label('start_time')).join(Show, Show.id == Artist.id).join(Venue, Show.venue_id == Venue.id).filter(Artist.name.ilike(search)).all()
         data = []
-        for artist in artists:
-            shows = db.session.query(Show.start_time.label('start_time')).filter(
-                Show.artist_id == artist.id).all()
-            data.append({'id': artist.id, 'name': artist.name, 'shows': shows})
+        response['count'] = len(shows)
+        for show in shows:
+            dict_show = dict(show)
+            dict_show["start_time"] = dict_show['start_time'].strftime(
+                "%Y-%m-%dT%H:%M:%S%Z")
+            data.append(dict_show)
+            
         response['data'] = data
         print(response)
     return render_template('pages/search_shows.html', results=response, search_term=request.form.get('search_term', ''))
 
 
-@app.route('/shows/<int:show_id>')
+@app.route('/shows/<int:show_id>', methods=['GET'])
 def show_detail(show_id):
-    result = db.session.query(Artist.name.label('artist_name'), Artist.image_link.label('artist_image_link'), Artist.city.label('city'), Venue.name.label('venue_name'), Show.start_time.label('start_time')).join(Show, Show.id == Artist.id).join(Venue, Show.venue_id == Venue.id).all()
+    result = db.session.query(Artist.id.label('id'), Artist.name.label('artist_name'), Artist.image_link.label('artist_image_link'), Artist.city.label('city'), Venue.name.label('venue_name'), Show.start_time.label('start_time')).join(Show, Show.id == Artist.id).join(Venue, Show.venue_id == Venue.id).all()
     shows = []
     for show in result:
         dict_show = dict(show)
@@ -196,12 +198,6 @@ def show_detail(show_id):
         print(type(dict_show))
         shows.append(dict_show)
     print(shows)
-    # show = {
-    #     'name': 'Yimesgen',
-    #     'start_time': '19-01-2004',
-    #     'venue_name': 'venue name',
-    #     'image_link': 'https://static.remove.bg/remove-bg-web/f9c9a2813e0321c04d66062f8cca92aedbefced7/assets/start_remove-c851bdf8d3127a24e2d137a55b1b427378cd17385b01aec6e59d5d4b5f39d2ec.png'
-    # }
     return render_template('pages/show.html', shows=shows)
 
 
