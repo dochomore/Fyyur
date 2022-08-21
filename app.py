@@ -138,7 +138,6 @@ def venues():
         for v in venues_query:
             count = db.session.query(Show).filter(
                 Show.venue_id == v[0]).filter(Show.start_time > datetime.now()).count()
-            print(count)
             venues.append({'id': v[0], 'name': v[1],
                           'num_upcomming_shows': count})
 
@@ -172,7 +171,8 @@ def search_shows():
     keyword = request.form.get('search_term')
     if keyword:
         search = "%{}%".format(keyword)
-        shows = db.session.query(Artist.id.label('id'), Artist.name.label('artist_name'), Venue.name.label('venue_name'), Show.start_time.label('start_time')).join(Show, Show.id == Artist.id).join(Venue, Show.venue_id == Venue.id).filter(Artist.name.ilike(search)).all()
+        shows = db.session.query(Artist.id.label('id'), Artist.name.label('artist_name'), Venue.name.label('venue_name'), Show.start_time.label(
+            'start_time')).join(Show, Show.id == Artist.id).join(Venue, Show.venue_id == Venue.id).filter(Artist.name.ilike(search)).all()
         data = []
         response['count'] = len(shows)
         for show in shows:
@@ -180,24 +180,24 @@ def search_shows():
             dict_show["start_time"] = dict_show['start_time'].strftime(
                 "%Y-%m-%dT%H:%M:%S%Z")
             data.append(dict_show)
-            
+
         response['data'] = data
-        print(response)
     return render_template('pages/search_shows.html', results=response, search_term=request.form.get('search_term', ''))
 
 
 @app.route('/shows/<int:show_id>', methods=['GET'])
 def show_detail(show_id):
-    result = db.session.query(Artist.id.label('id'), Artist.name.label('artist_name'), Artist.image_link.label('artist_image_link'), Artist.city.label('city'), Venue.name.label('venue_name'), Show.start_time.label('start_time')).join(Show, Show.id == Artist.id).join(Venue, Show.venue_id == Venue.id).all()
+    result = db.session.query(Artist.id.label('id'), Artist.name.label('artist_name'), Artist.image_link.label('artist_image_link'), Artist.city.label(
+        'city'), Venue.name.label('venue_name'), Show.start_time.label('start_time')).join(Show, Show.id == Artist.id).join(Venue, Show.venue_id == Venue.id).all()
     shows = []
     for show in result:
         dict_show = dict(show)
 
         dict_show["start_time"] = dict_show['start_time'].strftime(
-                "%Y-%m-%dT%H:%M:%S%Z")
-        print(type(dict_show))
+            "%Y-%m-%dT%H:%M:%S%Z")
+
         shows.append(dict_show)
-    print(shows)
+
     return render_template('pages/show.html', shows=shows)
 
 
@@ -271,7 +271,7 @@ def create_venue_submission():
             flash('validation error, invalid phone format')
         elif form.errors:
             flash(f'validation error')
-        print(form.errors)
+
         if form.validate_on_submit():
             venue = Venue(name=form.name.data,
                           city=form.city.data,
@@ -302,9 +302,8 @@ def create_venue_submission():
 @app.route('/venues/<int:venue_id>', methods=['DELETE', 'POST'])
 def delete_venue(venue_id):
     try:
-        print(venue_id)
+
         venue = Venue.query.get(venue_id)
-        print(venue.id)
         if venue:
             db.session.delete(venue)
             db.session.commit()
@@ -325,7 +324,6 @@ def delete_venue(venue_id):
 @app.route('/artists')
 def artists():
     data = Artist.query.all()
-    print(data)
     return render_template('pages/artists.html', artists=data)
 
 
@@ -423,7 +421,7 @@ def edit_artist(artist_id):
             form.seeking_venue.data = artist.seeking_venue
             form.seeking_description.data = artist.seeking_description
             form.image_link.data = artist.image_link
-            print('🥈🥈🥈', form)
+
         else:
             raise Exception()
     except:
@@ -438,8 +436,6 @@ def edit_artist(artist_id):
 def edit_artist_submission(artist_id):
     try:
         form = ArtistForm()
-        print(form.errors)
-        print('🟢🟢', form.validate_on_submit())
         if form.validate_on_submit():
             artist = Artist.query.get(artist_id)
             artist.name = form.name.data
@@ -530,7 +526,6 @@ def create_artist_form():
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
     form = ArtistForm(request.form)
-    print(f' 🏅', form.validate_on_submit())
     if form.validate_on_submit() == False:
         raise Exception(form.errors)
     try:
@@ -544,8 +539,6 @@ def create_artist_submission():
 
         elif form.errors:
             flash(f'validation error {form.errors}')
-        print('🟢🟢', form.errors)
-        print('🟢🟢', form.validate_on_submit())
         data = ''
         if form.validate_on_submit():
             artist = Artist(name=form.name.data,
