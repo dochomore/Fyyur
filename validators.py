@@ -20,4 +20,4 @@ class FacebookEnum(object):
 
     def __call__(self, form, field):
         if field.data not in self.address:
-          raise ValidationError("Out of specified facebook ulrs")
+          raise ValidationError(f"Out of specified facebook ulrs: {field.data}, {self.address} ")
